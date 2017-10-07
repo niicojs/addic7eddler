@@ -1,0 +1,19 @@
+{
+  "name": "addic7eddler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "js-yaml": "^3.10.0",
+    "mz": "^2.7.0",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5"
+  },
+  "devDependencies": {
+    "eslint": "^4.8.0"
+  }
+}
