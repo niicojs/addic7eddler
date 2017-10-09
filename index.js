@@ -85,10 +85,11 @@ async function download(config, show, history) {
                 headers: {
                     'Referer': `http://www.addic7ed.com/season/${show.id}/${episode.season}`,
                 },
+                encoding: null,
             });
 
             let filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/"/g, '');
-            await fs.writeFile(path.join(config.directory, filename), data.body, 'utf8');
+            await fs.writeFile(path.join(config.directory, filename), data.body);
 
             history.push({
                 show: show.name,
