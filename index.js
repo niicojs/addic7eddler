@@ -59,6 +59,7 @@ function pickShows(config, shows) {
 }
 
 async function download(config, show, history) {
+    let done = 0;
     console.log(`Downloading latest from '${show.name}'`);
     let html = await request.get(show.url);
     let $ = cheerio.load(html);
@@ -95,8 +96,12 @@ async function download(config, show, history) {
                 show: show.name,
                 url: episode.url,
             });
+
+            done++;
         }
     }
+
+    return done;
 }
 
 async function main() {
@@ -110,11 +115,18 @@ async function main() {
     shows = pickShows(config, shows);
     console.log(`${shows.length} filtered shows.`);
     // download episodes
+    let downloaded = 0;
     for (let show of shows) {
-        await download(config, show, history);
+        downloaded += await download(config, show, history);
     }
     // save history
     saveHistory(history);
+    // bye
+    if (downloaded > 0) {
+        console.log(`${downloaded} subtitle(s) downloaded.`);
+    } else {
+        console.log('Nothing downloaded.');
+    }
 }
 
 main()
