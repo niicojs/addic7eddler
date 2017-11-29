@@ -3,8 +3,8 @@ const cheerio = require('cheerio');
 const fs = require('mz/fs');
 const yaml = require('js-yaml');
 const path = require('path');
-let request = require('request-promise-native');
 
+let request = require('request-promise-native');
 request = request.defaults({
     jar: request.jar(),
     headers: {
@@ -37,9 +37,9 @@ async function saveHistory(history) {
 }
 
 async function getAllShows() {
-    let html = await request.get('http://www.addic7ed.com/shows.php');
-    let $ = cheerio.load(html);
-    let shows = $('a').toArray()
+    const html = await request.get('http://www.addic7ed.com/shows.php');
+    const $ = cheerio.load(html);
+    const shows = $('a').toArray()
                     .filter(elt => $(elt).attr('href') && $(elt).attr('href').indexOf('/show/') === 0)
                     .map(elt => ({
                         name: $(elt).text(),
@@ -50,9 +50,9 @@ async function getAllShows() {
 }
 
 function pickShows(config, shows) {
-    let filtered = [];
-    for (let wanted of config.shows) {
-        let show = shows.find(s => s.name === wanted);
+    const filtered = [];
+    for (const wanted of config.shows) {
+        const show = shows.find(s => s.name === wanted);
         if (show) filtered.push(show);
     }
     return filtered;
@@ -77,11 +77,11 @@ async function download(config, show, history) {
         url: 'http://www.addic7ed.com' + $(elt).find('td').eq(9).find('a').attr('href'),
     })).filter(ep => ep.completed && ep.lang === config.language);
 
-    let showhistory = history.filter(h => h.show === show.name);
-    for (let episode of episodes) {
+    const showhistory = history.filter(h => h.show === show.name);
+    for (const episode of episodes) {
         if (!showhistory.find(h => h.url === episode.url)) {
             console.log(`    download episode ${episode.episode}, version ${episode.version}`);
-            let data = await request.get(episode.url, { 
+            const data = await request.get(episode.url, { 
                 resolveWithFullResponse: true,
                 headers: {
                     'Referer': `http://www.addic7ed.com/season/${show.id}/${episode.season}`,
@@ -89,7 +89,7 @@ async function download(config, show, history) {
                 encoding: null,
             });
 
-            let filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/"/g, '');
+            const filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/"/g, '');
             await fs.writeFile(path.join(config.directory, filename), data.body);
 
             history.push({
