@@ -44,7 +44,7 @@ async function getAllShows() {
                     .map(elt => ({
                         name: $(elt).text(),
                         id: +$(elt).attr('href').replace('/show/', ''),
-                        url: 'http://www.addic7ed.com/' + $(elt).attr('href'),
+                        url: 'http://www.addic7ed.com' + $(elt).attr('href'),
                     }));
     return shows;
 }
