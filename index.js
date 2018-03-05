@@ -89,7 +89,7 @@ async function download(config, show, history) {
                 encoding: null,
             });
 
-            const filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/"/g, '');
+            const filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/("|\t)/g, '');
             await fs.writeFile(path.join(config.directory, filename), data.body);
 
             history.push({
