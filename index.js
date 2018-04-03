@@ -89,12 +89,13 @@ async function download(config, show, history) {
                 encoding: null,
             });
 
-            const filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/("|\t)/g, '');
+            const filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/(\:|"|\t)/g, '');
             await fs.writeFile(path.join(config.directory, filename), data.body);
 
             history.push({
                 show: show.name,
                 url: episode.url,
+                episode: `S${episode.season.toString().padStart(2, '0')}E${episode.episode.toString().padStart(2, '0')}`,
             });
 
             done++;
