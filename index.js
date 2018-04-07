@@ -17,6 +17,7 @@ request = request.defaults({
 
 async function loadConfig() {
     let content = await fs.readFile('config.yaml', 'utf8');
+    /** @type {any} */
     let config = yaml.load(content);
     if (!config.shows) config.shows = [];
     if (!fs.existsSync(config.directory)) await fs.mkdir(config.directory);    
@@ -78,29 +79,34 @@ async function download(config, show, history) {
     })).filter(ep => ep.completed && ep.lang === config.language);
 
     const showhistory = history.filter(h => h.show === show.name);
-    for (const episode of episodes) {
-        if (!showhistory.find(h => h.url === episode.url)) {
-            console.log(`    download episode ${episode.episode}, version ${episode.version}`);
-            const data = await request.get(episode.url, { 
-                resolveWithFullResponse: true,
-                headers: {
-                    'Referer': `http://www.addic7ed.com/season/${show.id}/${episode.season}`,
-                },
-                encoding: null,
-            });
 
-            const filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/(\:|"|\t)/g, '');
-            await fs.writeFile(path.join(config.directory, filename), data.body);
-
-            history.push({
-                show: show.name,
-                url: episode.url,
-                episode: `S${episode.season.toString().padStart(2, '0')}E${episode.episode.toString().padStart(2, '0')}`,
-            });
-
-            done++;
+    await Promise.all(episodes.map(async episode => {
+        try {
+            if (!showhistory.find(h => h.url === episode.url)) {
+                console.log(`    download episode ${episode.episode}, version ${episode.version}`);
+                const data = await request.get(episode.url, { 
+                    resolveWithFullResponse: true,
+                    headers: {
+                        'Referer': `http://www.addic7ed.com/season/${show.id}/${episode.season}`,
+                    },
+                    encoding: null,
+                });
+    
+                const filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/(\:|"|\t)/g, '');
+                await fs.writeFile(path.join(config.directory, filename), data.body);
+    
+                history.push({
+                    show: show.name,
+                    url: episode.url,
+                    episode: `S${episode.season.toString().padStart(2, '0')}E${episode.episode.toString().padStart(2, '0')}`,
+                });
+    
+                done++;
+            }
+        } catch(e) {
+            console.error('Error downloading episode: ' + e.message);
         }
-    }
+    }));
 
     return done;
 }
