@@ -24,17 +24,31 @@ async function loadConfig() {
     return config;
 }
 
-async function loadHistory() {
+async function loadHistory(config) {
+    let history;
     if (fs.existsSync('history.json')) {
-        let json = await fs.readFile('history.json', 'utf8');
-        return JSON.parse(json);
-    } else {
-        return [];
+        const json = await fs.readFile('history.json', 'utf8');
+        history = JSON.parse(json);
     }
+    if (config.saveHistory) {
+        const data = await request.get(config.saveHistory, { json: true });
+        if (!history || data.when >= history.when) {
+            history = data;
+        }
+    }
+    return history ||  { when: Date.now(), items: [], };
 }
 
-async function saveHistory(history) {
+async function saveHistory(config, history) {
+    history.when = Date.now();
     await fs.writeFile('history.json', JSON.stringify(history, null, 2), 'utf8');
+    if (config.saveHistory) {
+        await request.put({
+            url: config.saveHistory,
+            body: history,
+            json: true,
+        });
+    }
 }
 
 async function getAllShows() {
@@ -92,7 +106,11 @@ async function download(config, show, history) {
                     encoding: null,
                 });
     
-                const filename = data.headers['content-disposition'].replace('attachment; filename=', '').replace(/(\:|"|\t)/g, '');
+                let filename = data.headers['content-disposition'];
+                if (!filename) {
+                    ''.toString();
+                }
+                filename = filename.replace('attachment; filename=', '').replace(/(\:|"|\t)/g, '');
                 await fs.writeFile(path.join(config.directory, filename), data.body);
     
                 history.push({
@@ -113,8 +131,8 @@ async function download(config, show, history) {
 
 async function main() {
     // get config and history from disk
-    let config = await loadConfig();
-    let history = await loadHistory();
+    const config = await loadConfig();
+    const history = await loadHistory(config);
     // get all shows from addicted website
     let shows = await getAllShows();
     console.log(`${shows.length} shows available.`);
@@ -124,10 +142,10 @@ async function main() {
     // download episodes
     let downloaded = 0;
     for (let show of shows) {
-        downloaded += await download(config, show, history);
+        downloaded += await download(config, show, history.items);
     }
     // save history
-    saveHistory(history);
+    saveHistory(config, history);
     // bye
     if (downloaded > 0) {
         console.log(`${downloaded} subtitle(s) downloaded.`);
@@ -138,4 +156,6 @@ async function main() {
 
 main()
 .then(() => console.log('Done.'))
-.catch(console.error);
+.catch(e => {
+    console.error(e);
+});
