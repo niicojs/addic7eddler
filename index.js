@@ -107,19 +107,18 @@ async function download(config, show, history) {
                 });
     
                 let filename = data.headers['content-disposition'];
-                if (!filename) {
-                    ''.toString();
+                if (filename) {
+                    filename = filename.replace('attachment; filename=', '').replace(/(:|"|\t)/g, '');
+                    await fs.writeFile(path.join(config.directory, filename), data.body);
+
+                    history.push({
+                        show: show.name,
+                        url: episode.url,
+                        episode: `S${episode.season.toString().padStart(2, '0')}E${episode.episode.toString().padStart(2, '0')}`,
+                    });
+
+                    done++;
                 }
-                filename = filename.replace('attachment; filename=', '').replace(/(\:|"|\t)/g, '');
-                await fs.writeFile(path.join(config.directory, filename), data.body);
-    
-                history.push({
-                    show: show.name,
-                    url: episode.url,
-                    episode: `S${episode.season.toString().padStart(2, '0')}E${episode.episode.toString().padStart(2, '0')}`,
-                });
-    
-                done++;
             }
         } catch(e) {
             console.error('Error downloading episode: ' + e.message);

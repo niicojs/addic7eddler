@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+- node
+
+install:
+- npm i --no-save
+
+script:
+- npm run lint
+
+notifications:
+  email: false
