@@ -1,1 +1,1 @@
-[![Build Status](https://travis-ci.org/niicojs/addic7eddler.svg?branch=master)](https://travis-ci.org/niicojs/addic7eddler)
+[![Build Status](https://travis-ci.org/niicojs/addic7eddler.svg?branch=master)](https://travis-ci.org/niicojs/addic7eddler) [![Greenkeeper badge](https://badges.greenkeeper.io/niicojs/addic7eddler.svg)](https://greenkeeper.io/)
