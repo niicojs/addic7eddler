@@ -54,14 +54,25 @@ async function saveHistory(config, history) {
 
 async function getAllShows() {
     const html = await request.get('http://www.addic7ed.com/shows.php');
+    // await fs.writeFile('shows.html', html, 'utf8');
     const $ = cheerio.load(html);
-    const shows = $('a').toArray()
-                    .filter(elt => $(elt).attr('href') && $(elt).attr('href').indexOf('/show/') === 0)
-                    .map(elt => ({
-                        name: $(elt).text(),
-                        id: +$(elt).attr('href').replace('/show/', ''),
-                        url: 'http://www.addic7ed.com' + $(elt).attr('href'),
-                    }));
+    const useShowsOptions = true;
+    let shows;
+    if (!useShowsOptions) {
+        shows = $('a').toArray()
+                        .filter(elt => $(elt).attr('href') && $(elt).attr('href').indexOf('/show/') === 0)
+                        .map(elt => ({
+                            name: $(elt).text(),
+                            id: +$(elt).attr('href').replace('/show/', ''),
+                            url: 'http://www.addic7ed.com' + $(elt).attr('href'),
+                        }));
+    } else {
+        shows = $('select[name=qsShow]').find('option').toArray().map(elt => ({
+            name: $(elt).text(),
+            id: $(elt).attr('value'),
+            url: 'http://www.addic7ed.com/show/' + $(elt).attr('value'),
+        })).filter(elt => +elt.id !== 0);
+    }
     return shows;
 }
 
