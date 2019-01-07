@@ -9,6 +9,10 @@
   "scripts": {
     "lint": "eslint *.js"
   },
+  "prettier": {
+    "tabWidth": 2,
+    "singleQuote": true
+  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "js-yaml": "^3.12.0",
