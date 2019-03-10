@@ -55,10 +55,12 @@ async function saveHistory(config, history) {
 }
 
 async function getAllShows() {
-  const html = await request.get('http://www.addic7ed.com/shows.php');
+  const useShowsOptions = true;
+  let url = 'http://www.addic7ed.com/shows.php';
+  if (useShowsOptions) url = 'http://www.addic7ed.com';
+  const html = await request.get(url);
   // await fs.writeFile('shows.html', html, 'utf8');
   const $ = cheerio.load(html);
-  const useShowsOptions = true;
   let shows;
   if (!useShowsOptions) {
     shows = $('a')
