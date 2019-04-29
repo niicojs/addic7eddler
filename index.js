@@ -218,7 +218,7 @@ async function main() {
     downloaded += await download(config, show, history.items);
   }
   // save history
-  saveHistory(config, history);
+  await saveHistory(config, history);
   // bye
   if (downloaded > 0) {
     console.log(`${downloaded} subtitle(s) downloaded.`);
